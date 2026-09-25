@@ -66,7 +66,12 @@ button,a{font:inherit}.hidden{display:none!important}
 .scroll-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#e889a3,#b74d70);position:relative}
 .scroll-progress-fill:after{content:'♡';position:absolute;right:-9px;top:50%;transform:translateY(-50%);font-size:12px;color:#b74d70;background:#fff;border-radius:50%;width:17px;height:17px;display:grid;place-items:center;box-shadow:0 2px 6px #8d405e40}
 .click-heart{position:fixed;pointer-events:none;z-index:9998;animation:clickHeartPop .9s ease-out forwards}
-@keyframes clickHeartPop{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}.embed{max-width:850px;margin:20px auto 0}.embed iframe{border-radius:13px}.note{text-align:center;font-size:11px;color:#aa7a87;max-width:850px;margin:14px auto 0}
+@keyframes clickHeartPop{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.3)}}
+.random-love-text{max-width:480px;margin:18px auto 0;font-family:'Caveat';font-size:24px;color:#b74d70;min-height:34px;opacity:0;transition:opacity .5s ease,transform .5s ease;transform:translateY(6px)}
+.random-love-text.show{opacity:1;transform:translateY(0)}
+#confettiBurst{position:fixed;inset:0;pointer-events:none;z-index:9997;overflow:hidden}
+.confetti-piece{position:absolute;top:-40px;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(0) translateX(0) rotate(0deg);opacity:1}100%{transform:translateY(105vh) translateX(var(--cx)) rotate(var(--cr));opacity:0}}.embed{max-width:850px;margin:20px auto 0}.embed iframe{border-radius:13px}.note{text-align:center;font-size:11px;color:#aa7a87;max-width:850px;margin:14px auto 0}
 .player-card{border-radius:24px;transition:box-shadow .4s ease,transform .4s ease}
 .player-card.attention{animation:playerPulse 1.6s ease-in-out 2}
 @keyframes playerPulse{0%,100%{box-shadow:0 0 0 0 #d9577c00;transform:scale(1)}50%{box-shadow:0 0 0 14px #d9577c22;transform:scale(1.01)}}
@@ -111,6 +116,7 @@ button,a{font:inherit}.hidden{display:none!important}
 
 <div class="scroll-progress"><div class="scroll-progress-fill" id="scrollFill"></div></div>
 <div id="petalsRain"></div>
+<div id="confettiBurst"></div>
 
 <!-- HALAMAN RAHASIA / PEMBUKA -->
 <div id="opening">
@@ -132,7 +138,7 @@ button,a{font:inherit}.hidden{display:none!important}
 
 <div id="site">
   <audio id="audioPlayer" src="assets/lagu.mp3" preload="metadata"></audio>
-  <div class="toast-note" id="toastNote">🎵 Jangan lupa play dulu lagunya ya~hehee</div>
+  <div class="toast-note" id="toastNote">🎵 Jangan lupa play dulu lagunya ya~ biar makin berasa hehe</div>
   <div class="music">
     <button class="music-disc" id="discToggle" aria-label="Putar/Jeda lagu">♫</button>
     <button id="musicBtn">▶ Putar Lagu</button>
@@ -181,12 +187,12 @@ button,a{font:inherit}.hidden{display:none!important}
     <section class="section soft decorated-section" id="momen">
       <div class="side-flower side-flower-left">🌷</div>
       <div class="side-flower side-flower-right">🌸</div>
-      <div class="head center"><span class="label">OUR STORY</span><h2>Momen Kita ♡</h2><</div>
+      <div class="head center"><span class="label">OUR STORY</span><h2>Momen Kita ♡</h2></div>
       <div class="timeline">
         <article class="event"><div class="dot">♡</div><h3>Pertama Bertemu</h3><b>6 April 2026</b><p>Awalnya cuma kebetulan, tapi ternyata menjadi awal cerita yang luar biasa.</p></article>
         <article class="event"><div class="dot">♥</div><h3>Jadi Dekat</h3><b>11 Juli 2026</b><p>Awal mula call.</p></article>
         <article class="event"><div class="dot">⌂</div><h3>Bersama</h3><b>1 Agu 2026</b><p>Bilang kalo aku sayang kamu.</p></article>
-        <article class="event"><div class="dot">∞</div><h3>Selamanya</h3><b>14 September 2026</b><p>Semoga kita selalu bersama selamanyaa.</p></article>
+        <article class="event"><div class="dot">∞</div><h3>Selamanya</h3><b>14 September 2026</b><p>Semoga kita selalu punya alasan untuk memilih satu sama lain.</p></article>
       </div>
     </section>
 
@@ -219,10 +225,12 @@ button,a{font:inherit}.hidden{display:none!important}
       </div>
     </section>
 
-    <section class="section closing">
+    <section class="section closing" id="closing">
       <div style="font-size:38px">🌸 🌷 🌸</div><span class="label">ONE LAST THING</span>
       <h2>Terima kasih sudah<br><em>menjadi bagian indah dalam hidupku.</em></h2>
       <p>Selamat Ulang Tahun, Sayang ♡</p><p>kadonya pagi yaaa hehe</p><div class="big-heart">♥</div><div class="forever">Always & Forever</div>
+      <button class="primary" id="randomLoveBtn" style="margin-top:26px">💌 Kata Cinta Acak</button>
+      <p id="randomLoveText" class="random-love-text"></p>
     </section>
   </main>
   <footer>Made with ♡ especially for you</footer>
@@ -335,6 +343,61 @@ document.addEventListener('click',(e)=>{
     setTimeout(()=>h.remove(),950);
   }
 });
+
+// kata cinta acak
+const loveQuotes=[
+  "Kamu itu jawaban dari doa-doa kecilku ♡",
+  "Setiap hari bareng kamu berasa spesial.",
+  "Kamu tuh cantik, baik, dan sayangnya cuma sama aku, kan? hehe",
+  "Terima kasih udah jadi rumah paling nyaman buatku.",
+  "Bersyukur banget ada kamu di hidupku.",
+  "Cinta aku ke kamu nggak pernah muat dijelasin kata-kata.",
+  "Kamu alasan aku semangat jalanin hari-hari."
+];
+const randomLoveBtn=document.getElementById('randomLoveBtn');
+const randomLoveText=document.getElementById('randomLoveText');
+if(randomLoveBtn){
+  randomLoveBtn.addEventListener('click',()=>{
+    randomLoveText.classList.remove('show');
+    setTimeout(()=>{
+      randomLoveText.textContent=loveQuotes[Math.floor(Math.random()*loveQuotes.length)];
+      randomLoveText.classList.add('show');
+    },150);
+  });
+}
+
+// konfeti besar sekali aja pas sampai closing
+const confettiBurst=document.getElementById('confettiBurst');
+const confettiIcons=['🌸','🌷','💗','✨','🎉','💮'];
+function fireConfetti(){
+  for(let i=0;i<45;i++){
+    setTimeout(()=>{
+      const c=document.createElement('span');
+      c.className='confetti-piece';
+      c.textContent=confettiIcons[Math.floor(Math.random()*confettiIcons.length)];
+      c.style.left=Math.random()*100+'vw';
+      c.style.fontSize=(14+Math.random()*16)+'px';
+      c.style.setProperty('--cx',(Math.random()*160-80)+'px');
+      c.style.setProperty('--cr',(Math.random()*360)+'deg');
+      const dur=2.4+Math.random()*1.6;
+      c.style.animationDuration=dur+'s';
+      confettiBurst.appendChild(c);
+      setTimeout(()=>c.remove(),dur*1000+200);
+    },i*25);
+  }
+}
+const closingEl=document.getElementById('closing');
+if(closingEl){
+  const closingObserver=new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        fireConfetti();
+        closingObserver.disconnect();
+      }
+    });
+  },{threshold:.4});
+  closingObserver.observe(closingEl);
+}
 
 window.addEventListener('scroll',()=>{
  document.querySelectorAll('.reveal').forEach(el=>{
